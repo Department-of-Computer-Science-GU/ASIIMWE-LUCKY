@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Fact Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .spinner-border {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+        <h1 class="mb-4">Fun Fact Generator</h1>
+        <div class="card p-4">
+            <h2 id="fact" class="mb-3">[[${fact}]]</h2>
+            <div id="spinner" class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <button id="newFactBtn" class="btn btn-primary mt-3">Get Another Fun Fact</button>
+        </div>
+
+        <h3 class="mt-5">Fact History</h3>
+        <ul class="list-group" id="factHistory">
+            <li th:each="factItem : ${factHistory}" th:text="${factItem}" class="list-group-item">[[${factItem}]]</li>
+        </ul>
+    </div>
+
+    <script>
+        document.getElementById('newFactBtn').addEventListener('click', function() {
+            const factElement = document.getElementById('fact');
+            const spinner = document.getElementById('spinner');
+            const factHistory = document.getElementById('factHistory');
+
+            // Show loading spinner
+            spinner.style.display = 'block';
+
+            // Fetch new fact from the backend using AJAX
+            fetch('/new-fact')
+                .then(response => response.text())
+                .then(data => {
+                    // Hide the spinner and show the new fact
+                    spinner.style.display = 'none';
+                    factElement.innerHTML = data;
+
+                    // Add new fact to history
+                    const listItem = document.createElement('li');
+                    listItem.textContent = data;
+                    listItem.classList.add('list-group-item');
+                    factHistory.appendChild(listItem);
+                })
+                .catch(err => {
+                    console.error('Error fetching fact:', err);
+                    spinner.style.display = 'none';
+                    factElement.innerHTML = 'Oops! Something went wrong. Please try again.';
+                });
+        });
+    </script>
+</body>
+</html>
